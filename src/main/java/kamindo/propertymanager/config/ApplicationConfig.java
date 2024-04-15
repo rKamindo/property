@@ -20,4 +20,14 @@ public class ApplicationConfig {
 
     @Value("${KEY_STORE_PASSWORD}")
     private String sslKeyStorePassword;
+
+    @Value("${SPRING_DATASOURCE_URL}")
+    private String datasourceUrl;
+
+    @Value("${SPRING_DATASOURCE_USERNAME}")
+    private String datasourceUsername;
+
+    @Value("${SPRING_DATASOURCE_PASSWORD}")
+    private String datasourcePassword;
+
 }
