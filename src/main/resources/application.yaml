@@ -1,0 +1,29 @@
+# src/main/resources/application.yml
+okta:
+  oauth2:
+    issuer: ${OKTA_ISSUER}
+    client-id: ${OKTA_CLIENT_ID}
+    client-secret: ${OKTA_CLIENT_SECRET}
+    audience: https://property-manager-api
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWK_SET_URI}
+# The sample and instructions above for the callback and logout URL configuration use port 3000.
+# If you wish to use a different port, change this and be sure your callback and logout URLs are
+# configured with the correct port.
+server:
+  port: 8080
+  ssl:
+    enabled: true
+    key-store: keystore.p12
+    key-store-type: PKCS12
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-alias: localhost
+
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
