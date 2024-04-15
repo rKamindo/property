@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Local Configuration ###
+src/main/resources/.env
+
+keystore.p12
