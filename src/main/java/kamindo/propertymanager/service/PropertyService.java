@@ -6,11 +6,8 @@ import kamindo.propertymanager.model.PropertyType;
 import kamindo.propertymanager.model.Unit;
 import kamindo.propertymanager.repository.PropertyRepository;
 import kamindo.propertymanager.request.CreatePropertyRequest;
-import kamindo.propertymanager.request.CreateUnitRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

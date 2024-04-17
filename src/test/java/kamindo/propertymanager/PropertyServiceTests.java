@@ -87,9 +87,7 @@ public class PropertyServiceTests {
         when(propertyRepository.save(Mockito.any(Property.class))).thenThrow(RuntimeException.class);
 
         // Use assertThrows to verify that the service method throws BadRequestException
-        assertThrows(BadRequestException.class, () -> {
-            propertyService.createProperty(request, owner);
-        });
+        assertThrows(BadRequestException.class, () -> propertyService.createProperty(request, owner));
 
         // Verify that no property is saved by ensuring that the save method is never called
         verify(propertyRepository, never()).save(Mockito.any(Property.class));
