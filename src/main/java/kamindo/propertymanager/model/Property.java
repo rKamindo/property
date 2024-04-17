@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -21,16 +23,12 @@ public class Property {
     @Enumerated(EnumType.STRING)
     private PropertyType propertyType;
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "property")
-    private List<Unit> units;
+    @Builder.Default
+    private Set<Unit> units = new HashSet<>();
     private String propertyOwner; // unique identifier from auth0
 
     public void addUnit(Unit unit) {
-        if (units == null) {
-            units = new ArrayList<>();
-            units.add(unit);
-        } else {
-            units.add(unit);
-        }
+        units.add(unit);
     }
 }
 

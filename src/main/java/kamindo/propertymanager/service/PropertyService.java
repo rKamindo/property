@@ -6,8 +6,12 @@ import kamindo.propertymanager.model.PropertyType;
 import kamindo.propertymanager.model.Unit;
 import kamindo.propertymanager.repository.PropertyRepository;
 import kamindo.propertymanager.request.CreatePropertyRequest;
+import kamindo.propertymanager.request.CreateUnitRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,14 @@ public class PropertyService {
         if (request.propertyType() == PropertyType.SINGLE_UNIT &&
         request.units().size() > 1) {
             throw new BadRequestException("Single unit property cannot have more than one unit");
+        }
+
+        Set<String> unitNumbers = new HashSet<>();
+        for (CreateUnitRequest unitRequest: request.units()) {
+            if (unitNumbers.contains(unitRequest.unitNumber())) {
+                throw new BadRequestException("Property unit numbers must be unique");
+            }
+            unitNumbers.add(unitRequest.unitNumber());
         }
 
         Property property = Property.builder()

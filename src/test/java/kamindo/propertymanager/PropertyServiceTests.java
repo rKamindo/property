@@ -112,4 +112,28 @@ public class PropertyServiceTests {
         // Verify that no property is saved by ensuring that the save method is never called
         verify(propertyRepository, never()).save(Mockito.any(Property.class));
     }
+
+    @Test
+    public void createMultiUnitProperty_WithDuplicateUnitNumbers_ShouldNotSave() {
+        String owner = "owner1";
+        CreateUnitRequest unitRequest1 = new CreateUnitRequest("101");
+        CreateUnitRequest unitRequest2 = new CreateUnitRequest("101");
+        CreatePropertyRequest request = new CreatePropertyRequest(
+                "123 Main St",
+                PropertyType.MULTI_UNIT,
+                List.of(unitRequest1, unitRequest2)
+        );
+
+//        Property property = Property.builder()
+//                .address("123 Main St")
+//                .propertyType(PropertyType.SINGLE_UNIT)
+//                .propertyOwner(owner)
+//                .build();
+
+        when(propertyRepository.save(Mockito.any(Property.class))).thenThrow(RuntimeException.class);
+
+        assertThrows(BadRequestException.class, () -> propertyService.createProperty(request, owner));
+
+        verify(propertyRepository, never()).save(Mockito.any(Property.class));
+    }
 }
