@@ -124,16 +124,11 @@ public class PropertyServiceTests {
                 List.of(unitRequest1, unitRequest2)
         );
 
-//        Property property = Property.builder()
-//                .address("123 Main St")
-//                .propertyType(PropertyType.SINGLE_UNIT)
-//                .propertyOwner(owner)
-//                .build();
-
         when(propertyRepository.save(Mockito.any(Property.class))).thenThrow(RuntimeException.class);
 
         assertThrows(BadRequestException.class, () -> propertyService.createProperty(request, owner));
 
         verify(propertyRepository, never()).save(Mockito.any(Property.class));
     }
+
 }
