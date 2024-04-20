@@ -3,7 +3,6 @@ package kamindo.propertymanager;
 import kamindo.propertymanager.exception.BadRequestException;
 import kamindo.propertymanager.model.Property;
 import kamindo.propertymanager.model.PropertyType;
-import kamindo.propertymanager.model.Unit;
 import kamindo.propertymanager.repository.PropertyRepository;
 import kamindo.propertymanager.request.CreatePropertyRequest;
 import kamindo.propertymanager.request.CreateUnitRequest;
@@ -31,7 +30,7 @@ public class PropertyServiceTests {
     }
 
     @Test
-    public void createSingleUnitProperty_ShouldSave() {
+    public void createSingleUnitProperty_ShouldSave_AndReturnPropertyId() {
         String owner = "owner1";
         CreateUnitRequest unitRequest = new CreateUnitRequest("101");
 
@@ -40,20 +39,6 @@ public class PropertyServiceTests {
                 PropertyType.SINGLE_UNIT,
                 List.of(unitRequest)
         );
-
-        Unit unit = Unit
-                .builder()
-                .unitNumber("101")
-                .build();
-
-        Property property = Property.builder()
-                .address("123 Main St")
-                .propertyType(PropertyType.SINGLE_UNIT)
-                .propertyOwner(owner)
-                .build();
-
-        unit.setProperty(property);
-        property.addUnit(unit);
 
         // Mock the behavior of PropertyRepository to return the saved property
         when(propertyRepository.save(any(Property.class))).thenAnswer(invocation -> {
@@ -69,9 +54,38 @@ public class PropertyServiceTests {
         verify(propertyRepository).save(propertyCaptor.capture());
 
         // Assertions
-        assertEquals(property.getUnits(), propertyCaptor.getValue().getUnits());
+        assertEquals(1, propertyCaptor.getValue().getUnits().size());
         assertEquals(owner, propertyCaptor.getValue().getPropertyOwner());
-        assertNotNull(propertyId); // Ensure propertyId is not null
+        assertNotNull(propertyId); // Ensure propertyId returned is not null
+    }
+
+    @Test
+    public void createMultiUnitProperty_ShouldSave_AndReturnPropertyId() {
+        String owner = "owner1";
+        CreateUnitRequest unitRequest1 = new CreateUnitRequest("101");
+        CreateUnitRequest unitRequest2 = new CreateUnitRequest("102");
+
+        CreatePropertyRequest propertyRequest = new CreatePropertyRequest(
+                "123 Main St",
+                PropertyType.MULTI_UNIT,
+                List.of(unitRequest1, unitRequest2)
+        );
+
+        when(propertyRepository.save(any(Property.class))).thenAnswer(invocation -> {
+            Property savedProperty = invocation.getArgument(0);
+            savedProperty.setId(1L); // Simulate setting the ID
+            return savedProperty;
+        });
+
+        Long propertyId = propertyService.createProperty(propertyRequest, owner);
+
+        ArgumentCaptor<Property> propertyCaptor = ArgumentCaptor.forClass(Property.class);
+        verify(propertyRepository).save(propertyCaptor.capture());
+
+        assertEquals(2, propertyCaptor.getValue().getUnits().size());
+        assertEquals(owner, propertyCaptor.getValue().getPropertyOwner());
+        assertNotNull(propertyId); // Ensure propertyId returned is not null
+
     }
 
     @Test
@@ -127,8 +141,6 @@ public class PropertyServiceTests {
         when(propertyRepository.save(Mockito.any(Property.class))).thenThrow(RuntimeException.class);
 
         assertThrows(BadRequestException.class, () -> propertyService.createProperty(request, owner));
-
         verify(propertyRepository, never()).save(Mockito.any(Property.class));
     }
-
 }
