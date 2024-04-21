@@ -3,6 +3,7 @@ package kamindo.propertymanager;
 import kamindo.propertymanager.exception.BadRequestException;
 import kamindo.propertymanager.model.Property;
 import kamindo.propertymanager.model.PropertyType;
+import kamindo.propertymanager.model.Unit;
 import kamindo.propertymanager.repository.PropertyRepository;
 import kamindo.propertymanager.request.CreatePropertyRequest;
 import kamindo.propertymanager.request.CreateUnitRequest;
@@ -11,8 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -142,5 +145,97 @@ public class PropertyServiceTests {
 
         assertThrows(BadRequestException.class, () -> propertyService.createProperty(request, owner));
         verify(propertyRepository, never()).save(Mockito.any(Property.class));
+    }
+
+
+
+    @Test
+    public void addUnitToProperty_ShouldSave_AndReturnUnitId() {
+        String owner = "owner1";
+
+        Unit unit1 = Unit
+                .builder()
+                .unitNumber("101")
+                .build();
+
+        Property property = Property.builder()
+                .address("123 Main St")
+                .propertyType(PropertyType.MULTI_UNIT)
+                .propertyOwner(owner)
+                .build();
+        property.addUnit(unit1);
+
+        unit1.setProperty(property);
+
+        CreateUnitRequest unitRequest = new CreateUnitRequest("102");
+
+        when(propertyRepository.findById(anyLong())).thenReturn(Optional.of(property));
+
+        propertyService.addUnit(unitRequest, 1L, owner);
+
+        ArgumentCaptor<Property> propertyCaptor = ArgumentCaptor.forClass(Property.class);
+        verify(propertyRepository).save(propertyCaptor.capture());
+
+        Property savedProperty = propertyCaptor.getValue();
+        Unit newUnit = savedProperty.getUnits().stream()
+                .filter(unit -> unit.getUnitNumber().equals("102"))
+                .findFirst()
+                .orElse(null);
+
+        assertEquals(2, propertyCaptor.getValue().getUnits().size());
+        assertNotNull(newUnit);
+    }
+
+    @Test
+    public void addUnitTo_SingleUnitProperty_ShouldThrow_BadRequestException() {
+        String owner = "owner1";
+
+        Unit unit1 = Unit
+                .builder()
+                .unitNumber("101")
+                .build();
+
+        Property property = Property.builder()
+                .address("123 Main St")
+                .propertyType(PropertyType.SINGLE_UNIT)
+                .propertyOwner(owner)
+                .build();
+        property.addUnit(unit1);
+
+        CreateUnitRequest unitRequest = new CreateUnitRequest("102");
+
+        when(propertyRepository.findById(anyLong())).thenReturn(Optional.of(property));
+
+        assertThrows(BadRequestException.class, () -> propertyService.addUnit(unitRequest, 1L, owner));
+
+        verify(propertyRepository, never()).save(Mockito.any(Property.class));
+    }
+
+    @Test
+    public void addUnit_NotOwner_ShouldThrow_BadRequestException() {
+        String owner = "owner1";
+
+        Unit unit1 = Unit
+                .builder()
+                .unitNumber("101")
+                .build();
+
+        Property property = Property.builder()
+                .address("123 Main St")
+                .propertyType(PropertyType.MULTI_UNIT)
+                .propertyOwner(owner)
+                .build();
+        property.addUnit(unit1);
+
+        unit1.setProperty(property);
+
+        CreateUnitRequest unitRequest = new CreateUnitRequest("102");
+
+        when(propertyRepository.findById(anyLong())).thenReturn(Optional.of(property));
+
+        assertThrows(ResourceAccessException.class,
+                () -> propertyService.addUnit(unitRequest, 1L, "notOwner"));
+        verify(propertyRepository, never()).save(Mockito.any(Property.class));
+
     }
 }

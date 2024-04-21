@@ -1,10 +1,12 @@
 package kamindo.propertymanager.model;
 
 import jakarta.persistence.*;
+import kamindo.propertymanager.exception.BadRequestException;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -20,12 +22,17 @@ public class Property {
     private String address;
     @Enumerated(EnumType.STRING)
     private PropertyType propertyType;
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "property")
-    @Builder.Default
-    private Set<Unit> units = new HashSet<>();
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    private List<Unit> units;
     private String propertyOwner; // unique identifier from auth0
 
     public void addUnit(Unit unit) {
+        if (units == null) {
+            units = new ArrayList<>();
+        }
+        if (!this.units.isEmpty() && this.getPropertyType() == PropertyType.SINGLE_UNIT) {
+            throw new BadRequestException("Single unit property cannot have more than one unit");
+        }
         units.add(unit);
     }
 }
