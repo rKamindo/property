@@ -35,7 +35,7 @@ public class PropertyController {
         return ResponseEntity.ok(unitId);
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<List<PropertyDTO>> getPropertiesForUser(Principal principal) {
         List<PropertyDTO> properties = propertyService.getPropertiesForUser(principal.getName());
         return ResponseEntity.ok(properties);
