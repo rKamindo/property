@@ -37,6 +37,9 @@ jobs:
     permissions:
       contents: write
 
+    - name: Make Gradle wrapper executable 
+        run: chmod +x gradlew 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
