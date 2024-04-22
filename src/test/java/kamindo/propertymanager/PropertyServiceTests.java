@@ -3,6 +3,7 @@ package kamindo.propertymanager;
 import kamindo.propertymanager.dto.PropertyDTO;
 import kamindo.propertymanager.dto.UnitDTO;
 import kamindo.propertymanager.exception.BadRequestException;
+import kamindo.propertymanager.exception.ResourceNotFoundException;
 import kamindo.propertymanager.model.Property;
 import kamindo.propertymanager.model.PropertyType;
 import kamindo.propertymanager.model.Unit;
@@ -16,6 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -290,5 +293,14 @@ public class PropertyServiceTests {
         assertEquals(2, actualUnits.size());
         assertEquals("101", actualUnits.get(0).getUnitNumber());
         assertEquals(1L, actualUnits.get(1).getPropertyId());
+    }
+
+    @Test
+    public void getUnitsFor_NonExistingProperty_ShouldThrow404Exception() {
+        when(propertyRepository.getUnitsByProperty(anyLong())).thenReturn(Collections.emptyList());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            propertyService.getUnitsForProperty(1L);
+        });
     }
 }
