@@ -1,5 +1,6 @@
 package kamindo.propertymanager.controller;
 
+import kamindo.propertymanager.dto.PropertyDTO;
 import kamindo.propertymanager.request.CreatePropertyRequest;
 import kamindo.propertymanager.request.CreateUnitRequest;
 import kamindo.propertymanager.service.PropertyService;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +33,11 @@ public class PropertyController {
     ) {
         Long unitId = propertyService.addUnit(request, propertyId, principal.getName());
         return ResponseEntity.ok(unitId);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<PropertyDTO>> getPropertiesForUser(Principal principal) {
+        List<PropertyDTO> properties = propertyService.getPropertiesForUser(principal.getName());
+        return ResponseEntity.ok(properties);
     }
 }

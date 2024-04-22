@@ -1,5 +1,6 @@
 package kamindo.propertymanager;
 
+import kamindo.propertymanager.dto.PropertyDTO;
 import kamindo.propertymanager.exception.BadRequestException;
 import kamindo.propertymanager.model.Property;
 import kamindo.propertymanager.model.PropertyType;
@@ -236,6 +237,30 @@ public class PropertyServiceTests {
         assertThrows(ResourceAccessException.class,
                 () -> propertyService.addUnit(unitRequest, 1L, "notOwner"));
         verify(propertyRepository, never()).save(Mockito.any(Property.class));
+    }
 
+    @Test
+    public void getProperties_ShouldReturn_PropertiesForUser() {
+        List<PropertyDTO> expectedProperties = List.of(
+                PropertyDTO.builder()
+                        .address("123 Main St")
+                        .propertyType(PropertyType.MULTI_UNIT)
+                        .unitCount(2L)
+                        .build(),
+                PropertyDTO.builder()
+                        .address("313 Main St")
+                        .propertyType(PropertyType.SINGLE_UNIT)
+                        .unitCount(1L)
+                        .build()
+        );
+
+        when(propertyRepository.getPropertiesForUser(anyString())).thenReturn(expectedProperties);
+
+        List<PropertyDTO> actualProperties = propertyService.getPropertiesForUser("owner1");
+
+        assertNotNull(actualProperties);
+        assertEquals(2, actualProperties.size());
+        assertEquals("123 Main St", actualProperties.get(0).getAddress());
+        assertTrue(actualProperties.stream().anyMatch(p -> p.getPropertyType().equals(PropertyType.SINGLE_UNIT)));
     }
 }

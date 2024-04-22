@@ -1,5 +1,6 @@
 package kamindo.propertymanager.service;
 
+import kamindo.propertymanager.dto.PropertyDTO;
 import kamindo.propertymanager.exception.BadRequestException;
 import kamindo.propertymanager.exception.ResourceNotFoundException;
 import kamindo.propertymanager.model.Property;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -77,5 +79,9 @@ public class PropertyService {
 
         propertyRepository.save(property);
         return newUnit.getId();
+    }
+
+    public List<PropertyDTO> getPropertiesForUser(String owner) {
+        return propertyRepository.getPropertiesForUser(owner);
     }
 }
