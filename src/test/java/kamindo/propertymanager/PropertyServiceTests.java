@@ -1,6 +1,7 @@
 package kamindo.propertymanager;
 
 import kamindo.propertymanager.dto.PropertyDTO;
+import kamindo.propertymanager.dto.UnitDTO;
 import kamindo.propertymanager.exception.BadRequestException;
 import kamindo.propertymanager.model.Property;
 import kamindo.propertymanager.model.PropertyType;
@@ -243,11 +244,13 @@ public class PropertyServiceTests {
     public void getProperties_ShouldReturn_PropertiesForUser() {
         List<PropertyDTO> expectedProperties = List.of(
                 PropertyDTO.builder()
+                        .id(1L)
                         .address("123 Main St")
                         .propertyType(PropertyType.MULTI_UNIT)
                         .unitCount(2L)
                         .build(),
                 PropertyDTO.builder()
+                        .id(2L)
                         .address("313 Main St")
                         .propertyType(PropertyType.SINGLE_UNIT)
                         .unitCount(1L)
@@ -262,5 +265,30 @@ public class PropertyServiceTests {
         assertEquals(2, actualProperties.size());
         assertEquals("123 Main St", actualProperties.get(0).getAddress());
         assertTrue(actualProperties.stream().anyMatch(p -> p.getPropertyType().equals(PropertyType.SINGLE_UNIT)));
+    }
+
+    @Test
+    public void getUnitsForProperty_ShouldReturn_AllUnitsForProperty() {
+        List<UnitDTO> expectedUnits = List.of(
+                UnitDTO.builder()
+                        .id(1L)
+                        .unitNumber("101")
+                        .propertyId(1L)
+                        .build(),
+                UnitDTO.builder()
+                        .id(2L)
+                        .unitNumber("102")
+                        .propertyId(1L)
+                        .build()
+        );
+
+        when(propertyRepository.getUnitsByProperty(anyLong())).thenReturn(expectedUnits);
+
+        List<UnitDTO> actualUnits = propertyService.getUnitsForProperty(1L);
+
+        assertNotNull(actualUnits);
+        assertEquals(2, actualUnits.size());
+        assertEquals("101", actualUnits.get(0).getUnitNumber());
+        assertEquals(1L, actualUnits.get(1).getPropertyId());
     }
 }

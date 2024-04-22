@@ -1,6 +1,7 @@
 package kamindo.propertymanager.controller;
 
 import kamindo.propertymanager.dto.PropertyDTO;
+import kamindo.propertymanager.dto.UnitDTO;
 import kamindo.propertymanager.request.CreatePropertyRequest;
 import kamindo.propertymanager.request.CreateUnitRequest;
 import kamindo.propertymanager.service.PropertyService;
@@ -25,6 +26,12 @@ public class PropertyController {
         return ResponseEntity.ok(propertyId);
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<PropertyDTO>> getPropertiesForUser(Principal principal) {
+        List<PropertyDTO> properties = propertyService.getPropertiesForUser(principal.getName());
+        return ResponseEntity.ok(properties);
+    }
+
     @PostMapping("/{propertyId}/units")
     public ResponseEntity<Long> addUnit(
             @RequestBody CreateUnitRequest request,
@@ -35,9 +42,10 @@ public class PropertyController {
         return ResponseEntity.ok(unitId);
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<PropertyDTO>> getPropertiesForUser(Principal principal) {
-        List<PropertyDTO> properties = propertyService.getPropertiesForUser(principal.getName());
-        return ResponseEntity.ok(properties);
+
+    @GetMapping("/{propertyId}/units")
+    public ResponseEntity<List<UnitDTO>> getUnitsForProperty(@PathVariable Long propertyId) {
+        List<UnitDTO> units = propertyService.getUnitsForProperty(propertyId);
+        return ResponseEntity.ok(units);
     }
 }

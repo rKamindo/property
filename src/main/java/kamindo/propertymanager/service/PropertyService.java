@@ -1,6 +1,7 @@
 package kamindo.propertymanager.service;
 
 import kamindo.propertymanager.dto.PropertyDTO;
+import kamindo.propertymanager.dto.UnitDTO;
 import kamindo.propertymanager.exception.BadRequestException;
 import kamindo.propertymanager.exception.ResourceNotFoundException;
 import kamindo.propertymanager.model.Property;
@@ -83,5 +84,13 @@ public class PropertyService {
 
     public List<PropertyDTO> getPropertiesForUser(String owner) {
         return propertyRepository.getPropertiesForUser(owner);
+    }
+
+    public List<UnitDTO> getUnitsForProperty(Long propertyId) {
+        List<UnitDTO> units =  propertyRepository.getUnitsByProperty(propertyId);
+        if (units.isEmpty()) {
+            throw new ResourceNotFoundException("Property by id not found");
+        }
+        return units;
     }
 }

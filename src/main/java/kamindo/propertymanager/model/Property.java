@@ -22,7 +22,7 @@ public class Property {
     private String address;
     @Enumerated(EnumType.STRING)
     private PropertyType propertyType;
-    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Unit> units;
     private String propertyOwner; // unique identifier from auth0
 
